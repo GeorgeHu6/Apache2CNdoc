@@ -1,0 +1,50 @@
+<!DOCTYPE doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+            <title>
+                入门指南
+            </title>
+            <link href="./style/main.css" rel="stylesheet">
+            </link>
+        </meta>
+    </head>
+    <body>
+        <div class="preamble">
+            <h1>
+                入门指南
+            </h1>
+            <p>
+                如果你对Apache HTTP服务器完全陌生，或者说也完全没有搭建过一个网站，你可能会感觉无从下手，甚至不知道要问些什么问题。这篇文章可以让你很好的轻松了解基础知识。
+            </p>
+        </div>
+        <div class="section">
+            <h2>
+                客户端、服务器和URL
+            </h2>
+            <p>
+                网络地址可以用URL——统一资源定位符来表示【可以理解为域名，如www.baidu.com，（GeorgeHu注）】。URL指定了一个协议（如http）、一个服务器名（如www.apache.org），一个URL路径（如/docs/current/getting-started.html）、很有可能还有一个查询字符串（如?arg=value）。像这样的查询字符串可以用来将一些参数传给服务器。
+            </p>
+            <p>
+                客户端（比如网页浏览器）会用特定的协议连接到服务器（就比如一个Apache HTTP服务器），使用URL路径请求某个资源
+            </p>
+            <p>
+                URL路径可以表示服务器上的很多东西：可以是一个文件、一个操作，也可以是一个程序文件（例如一个php页面）。我们会在之后的
+                <a href="https://httpd.apache.org/docs/2.4/zh-cn/getting-started.html#content">
+                    网站内容
+                </a>
+                部分讨论。
+            </p>
+            <p>
+                服务器会发送一个response响应，其中包括了一个状态码，可能还会有一个响应体。状态码反映了这次请求是否成功；若没有成功，状态码可以指出出现了那种错误。状态码可以告诉客户端需要对其做什么处理。你可以前往
+                <a href="http://wiki.apache.org/httpd/CommonHTTPStatusCodes">
+                    HTTP服务器百科
+                </a>
+                查看各种状态码的具体含义。
+            </p>
+            <p>
+                对于处理的细节和所有可能的错误会被写入到日志文件中。这会在之后的<a href="https://httpd.apache.org/docs/2.4/zh-cn/getting-started.html#logs">日志文件和错误处理</a>部分进一步详细讨论。
+            </p>
+        </div>
+    </body>
+</html>
