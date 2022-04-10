@@ -1,0 +1,56 @@
+@charset "utf-8";
+h1 {
+  padding: 0.2em;
+  margin: 0;
+  border: 1px solid #405871;
+  background-color: inherit;
+  color: #036;
+  text-decoration: none;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+h2 {
+    padding: 0.2em 0 0.2em 0.2em;
+    margin: 0 0 0.5em 0;
+    width: 80%;
+    text-decoration: none;
+    font-size: 15pt;
+    font-weight: bold;
+    border-bottom: 1px solid #000;
+    text-align: left;
+}
+
+h3 {
+    background-color: inherit;
+    color: #000;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 13pt;
+    margin: 1.3em 0 0.4em 0;
+    padding: 0 0 0 0.2em;
+}
+
+h4 {
+    background-color: inherit;
+    color: #000;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 11pt;
+    margin: 1.3em 0 0.2em 0;
+    padding: 0 0 0 0.2em;
+}
+
+.preamble {
+    padding-bottom: 1em;
+    margin-left: 30px;
+}
+
+.section h2 {
+    background-color: #405871;
+    color: #fff;
+}
+
+.section {
+  margin-left: 4em;
+}
