@@ -54,3 +54,44 @@ h4 {
 .section {
   margin-left: 4em;
 }
+
+table {
+    border: 1px solid #aaa;
+    padding: 2px;
+    margin-top: 0.5em;
+}
+
+table .related {
+    border-collapse: separate;
+}
+
+td, th {
+    empty-cells: show;
+    text-align: left;
+    line-height: 1.3em;
+}
+
+table.related th {
+    padding: 0.2ex 0.3em;
+    background-color: #e5ecf3;
+    color: #405871;
+    vertical-align: middle;
+}
+
+code {
+    font-size: 1.2em;
+}
+
+table.related td ul, table.related td li {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+table.related td {
+    padding: 0.2ex 0.3em;
+}
+
+li, dt, dd {
+    line-height: 1.3em;
+}

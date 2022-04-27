@@ -19,4 +19,9 @@ main分支下存放确定了的翻译版本，secondary分支下存放待确定�
 |章节名|已校对|已翻译|备注|
 |:--:|:--:|:--:|:--:|
 |入门指南（Getting Started）||✔GeorgeHu||
-
+|绑定指定地址与端口（Binding to Addresses and Ports）||||
+|配置文件（Configuration Files）||||
+|配置片段（Configuration Sections）||||
+|内容缓存（Content Caching）||||
+|内容协商（Content Negotiation）||||
+|动态共享对象DSO（Dynamic Shared Objects）||||
