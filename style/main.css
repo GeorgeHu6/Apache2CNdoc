@@ -95,3 +95,36 @@ table.related td {
 li, dt, dd {
     line-height: 1.3em;
 }
+
+code.directive, code.directive a:link {
+    color: #287f00;
+    background-color: inherit;
+}
+
+code.module, code.module a:link {
+    color: #8b4513;
+    background-color: inherit;
+}
+
+div.example pre {
+    padding: 0;
+    margin: 0;
+    padding: 0.8em;
+    max-width: 90em;
+}
+
+pre.prettyprint {
+    tab-size: 4;
+    overflow: auto;
+    overflow-y: hidden;
+    line-height: 0.7em;
+}
+
+pre.lang-config {
+    background-color: #e5ecf3;
+    color: #000;
+    border: none;
+}
+.lang-config p {
+    margin: 0;
+}
