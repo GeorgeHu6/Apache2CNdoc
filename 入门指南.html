@@ -18,6 +18,7 @@
                 如果你对Apache HTTP服务器完全陌生，或者说也完全没有搭建过一个网站，你可能会感觉无从下手，甚至不知道要问些什么问题。这篇文章可以让你很好的轻松了解基础知识。
             </p>
         </div>
+        <!-- 客户端、服务器和URL -->
         <div class="section">
             <h2>
                 客户端、服务器和URL
@@ -43,7 +44,99 @@
                 查看各种状态码的具体含义。
             </p>
             <p>
-                对于处理的细节和所有可能的错误会被写入到日志文件中。这会在之后的<a href="https://httpd.apache.org/docs/2.4/zh-cn/getting-started.html#logs">日志文件和错误处理</a>部分进一步详细讨论。
+                对于处理的细节和所有可能的错误会被写入到日志文件中。这会在之后的
+                <a href="https://httpd.apache.org/docs/2.4/zh-cn/getting-started.html#logs">
+                    日志文件和错误处理
+                </a>
+                部分进一步详细讨论。
+            </p>
+        </div>
+        <div class="section">
+            <h2>
+                主机名与DNS
+            </h2>
+            <p>
+                由于IP地址指示了服务器在互联网中的位置，客户端要先把服务器的名称转换为一个IP地址，这样子才能够和服务器建立连接。因此，为了使你的web服务器可以被访问，你的服务器名称得在DNS上。
+            </p>
+            <p>
+                要是你不知道如何将服务器名称放在DNS上，你需要联系网络管理员或你的服务提供商，让他们帮你完成这一步骤。
+            </p>
+            <p>
+                一个IP地址可以对应好多个主机名，而一台物理服务器可以有好多个IP地址。因此，你可以使用<a href="https://httpd.apache.org/docs/2.4/zh-cn/vhosts/">虚拟主机</a>技术，在一台物理服务器上同时运行好多个web网站。
+            </p>
+            <p>
+                若是你在未联网的本地环境下测试你的服务器，你可以将主机名写到hosts文件中，这样就可以完成本地解析了。举个例子，如果你想将<i>www.example.com</i>映射到本地，你可以在hosts文件中添加一条记录。
+                127.0.0.1 www.example.com
+            </p>
+            <p>
+                hosts文件可能在<i>/etc/hosts</i>或是<i>C:\Windows\system32\drivers\etc\hosts</i>目录下
+            </p>
+            <p>
+                你可以在<a href="http://en.wikipedia.org/wiki/Hosts_(file)">Hosts文件维基百科</a>和<a href="http://en.wikipedia.org/wiki/Domain_Name_System">DNS维基百科</a>中查看更多关于他们的内容
+            </p>
+        </div>
+        <div class="section">
+            <h2>配置文件及指令</h2>
+            <p>
+                Apache HTTP 服务器可以通过简单的文本文件来配置。不同方法安装Apache，其配置文件会被放在不同的地方。一些常见的存放位置请参阅<a href="http://wiki.apache.org/httpd/DistrosDefaultLayout">httpd的wiki</a>。如果你从源代码自行编译安装，默认的配置文件位置在<i>/usr/local/apache2/conf</i>下，默认的配置文件通常命名为<i>httpd.conf</i>，当然，这个名字可能也会不同。
+            </p>
+            <p>
+                为了便于管理，配置信息一般来说会分为多个文件来存放。这些文件通过<a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#include">Include</a>指令来加载。由于安装的不同，这些配置子文件的名字可能会大相径庭。你完全可以按照适合自己的方式组织和细分这些文件，而不用拘泥于默认的文件名。
+            </p>
+            <p>
+                我们通过一些<a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/quickreference.html">配置指令来编写配置文件</a>，并用这些配置文件来配置服务器。一条指令是由一个保留字和一些参数构成的。
+            </p>
+            <p>
+                那这些指令在文件中应该怎么组织呢。其实只要根据你想要让指令发挥作用的地方来考虑就可以了。例如你要将它作为全局设置，那么你就应该要将这条指令放在任何section（例如<a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a>、<a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#location">&lt;Location&gt;</a>、<a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#virtualhost">&lt;VirtualHost&gt;</a>等）之外的地方；若是你想要让这条指令在某个目录下生效，就把它放在<a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a>这个section中即可。对于这些section，具体可以参阅<a href="https://httpd.apache.org/docs/2.4/zh-cn/sections.html">配置中的section</a>
+            </p>
+            <p>
+                除了上面的这些主配置文件外，在存放Web等内容的目录中，可能还会有一些<i>.htaccess</i>文件，里面也是一些用于配置的指令。这种文件主要是给那些没有权限修改服务器主配置文件的人使用的。你可以在<a href="https://httpd.apache.org/docs/2.4/zh-cn/howto/htaccess.html">如何使用.htaccess</a>中查看更多关于这种文件的内容。
+            </p>
+        </div>
+        <div class="section">
+            <h2>网站的内容</h2>
+            <p>
+                网站的内容多种多样，但他们大体上都可以分为静态内容和动态内容两类。
+            </p>
+            <p>
+                例如HTML文件、图片、CSS文件和其他一些存放在文件系统中的文件都属于静态内容。可以用<a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#documentroot">DocumentRoot</a>指令来指定这些文件在文件系统中存放的位置。显然，这条指令可以作为全局设置进行配置，也可以为每个虚拟主机分别配置，根据实际情况配置即可。
+            </p>
+            <p>
+                通常来说，若没有指定要访问的文件，默认访问index.html。举个例子，DocumentRoot设为<i>/var/www/html</i>,请求 为<i>http://www.example.com/work/</i>，则<i>/var/www/html/work/index.html</i>文件会返回给客户端
+            </p>
+            <p>
+                动态内容在访问时才会被生成。对于不同的请求，生成的内容也不尽相同；生成动态内容的方式也非常多，例如可以用<a href="https://httpd.apache.org/docs/2.4/zh-cn/howto/cgi.html">CGI脚本</a>来生成动态内容
+            </p>
+            <p>
+                当然，很多第三方模块（例如mod_php）也可以生成动态内容。非常多的工具和编程语言都可以做这个工作，你可以在你使用的工具的官方文档中找到如何将他们与Apache HTTP服务器结合起来使用。
+            </p>
+        </div>
+        <div class="section">
+            <h2>日志文件与故障排除</h2>
+            <p>
+                日志文件、错误日志对我们来说非常重要，可以用他们来排除各种故障
+            </p>
+            <p>
+                错误日志的存放位置可以使用<a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#errorlog">ErrorLog</a>指令来定义。与DocumentRoot一样，ErrorLog可以作为全局设置进行配置，也可以为每个虚拟主机分别配置。错误日志中的条目可以告诉你在什么时候发生了什么错误，也会告诉你如何修复这些问题。每条错误日志信息中都包括着一个错误码，你可以根据错误码上网搜到更多信息来帮助你定位错误。你也可以让错误日志中让一个条目中包含一个日志ID，这样子你就能定位是什么请求导致了这个错误。
+            </p>
+            <p>
+                关于日志记录的更多信息，请参阅<a href="https://httpd.apache.org/docs/2.4/zh-cn/logs.html">日志记录帮助文档</a>
+            </p>
+        </div>
+        <div class="section">
+            <h2>接下来要干什么了呢？</h2>
+            <p>
+                现在，你已经有了上面的这些知识储备，是时候继续前进啦。
+            </p>
+            <p>
+                本篇文档只涵盖了很小的一部分基础知识，这可以帮助你有个初步的了解。你还需要知道一些其他的知识。
+                <ul>
+                    <li><a href="http://httpd.apache.org/download.cgi">如何下载</a></li>
+                    <li><a href="https://httpd.apache.org/docs/2.4/zh-cn/install.html">如何安装</a></li>
+                    <li><a href="https://httpd.apache.org/docs/2.4/zh-cn/configuring.html">如何配置</a></li>
+                    <li><a href="https://httpd.apache.org/docs/2.4/zh-cn/invoking.html">如何运行服务器</a></li>
+                    <li><a href="http://wiki.apache.org/httpd/FAQ">常见问题解答</a></li>
+                </ul>
             </p>
         </div>
     </body>

@@ -1,0 +1,171 @@
+<!DOCTYPE doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+            <title>
+                配置文件
+            </title>
+            <link href="./style/main.css" rel="stylesheet">
+            </link>
+        </meta>
+    </head>
+    <body>
+        <div class="preamble">
+            <h1>
+                配置文件
+            </h1>
+            <p>
+                这篇文档描述了用来配置Apache HTTP服务器的配置文件
+            </p>
+        </div>
+        <div class="section">
+            <h2>主配置文件</h2>
+            <table class="related">
+                <tr>
+                    <th>相关模块</th>
+                    <th>相关指令</th>
+                </tr>
+                <tr>
+                    <td>
+                        <ul>
+                            <li><code class="module"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_mime.html">mod_mime</a></code></li>
+                        </ul>
+                    </td>
+                    <td>
+                        <ul>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#ifdefine">&lt;IfDefine&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#include">Include</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_mime.html#typesconfig">TypesConfig</a></code></li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+            <p>
+                Apache HTTP服务器的配置通过配置文件中的一些<a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/directives.html">指令</a>来实现。主配置文件的文件名一般为<code>httpd.conf</code>，这个主配置文件的位置在编译时就进行了指定，但也可以通过<code>-f</code>命令行参数来对其进行覆盖。如之前的文档所述，可以通过<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#include">Include</a></code>命令来添加一些其他的配置文件，在使用这个命令指定配置文件时，可以用通配符一次指定多个。修改主配置文件后，在重启后才会生效。
+            </p>
+            <p>
+                服务器还可以读取一些包含mime文档类型的文件，其文件名可以通过<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_mime.html#typesconfig">TypesConfig</a></code>指令来指定，若不指定，默认的文件名为<code>mime.types</code>
+            </p>
+        </div>
+        <div class="section">
+            <h2>配置文件的语法</h2>
+            <p>
+                httpd的配置文件中，每行中都有一条指令，若一条指令要跨多行，使用反斜杠“\”作为续行符。显然，在同一行中，续行符后不能有其他任何字符。
+            </p>
+            <p>
+                指令的参数使用空格进行分隔。若是某个参数中本身就包含空格，这个参数就需要放在引号中。
+            </p>
+            <p>
+                配置文件中的指令大小写不敏感，但是参数一般都是大小写敏感的，使用“#”来标识某一行是注释。指令前的空格都会被忽略，所以你可以使用缩进使得配置文件结构更加清晰。同样，空行也会被忽略。
+            </p>
+            <p>
+                <code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#define">Define</a></code>指令可以用来定义变量，Shell环境变量可以直接使用。使用<code>${VAR}</code>来获取变量值，其中VAR是变量名。使用<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#define">Define</a></code>指令定义的变量优先级大于Shell环境变量。若该变量不存在，<code>${VAR}</code>会原封不动的放在配置文件中，并且httpd会发出一个警告。为了防止与<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_rewrite.html#rewritemap">RewriteMap</a></code>的语法冲突，变量名中不能包含冒号“:”。
+            </p>
+            <p>
+                只有在服务器启动之前定义的shell环境变量才能在扩展中使用。在配置文件本身中定义的环境变量（如使用<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_env.html#setenv">SetEnv</a></code>定义的），由于生效时间的原因，也是无法用于配置文件中的扩展的。
+            </p>
+            <p>
+                在进行了变量替换（就是上面将<code>${VAR}</code>替换为变量实际值的过程）并算上所有续行，一行的长度在普通配置文件中最大长度为16MB；在<a href="https://httpd.apache.org/docs/2.4/zh-cn/configuring.html#htaccess">.htaccess文件</a>中，最大为8190个字符
+            </p>
+            <p>
+                在启动服务器前，可以使用<code>apachectl configtest</code>或者<code>-t</code>参数来对配置文件进行语法检查。
+            </p>
+            <p>
+                可以使用<a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_info.html">mod_info</a>中的<code>-DDUMP_CONFIG</code>来转储已经解析的环境变量和包含文件，所有的注释和没有匹配上的<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#ifdefine">&lt;IfDefine&gt;</a></code>与<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#ifmodule">&lt;IfModule&gt;</a></code>片段同时都会被移除。但是，输出的内容不会体现重复指令的合并和覆盖。
+            </p>
+        </div>
+        <div class="section">
+            <h2>模块</h2>
+            <table class="related">
+                <tr>
+                    <th>相关模块</th>
+                    <th>相关指令</th>
+                </tr>
+                <tr>
+                    <td>
+                        <ul>
+                            <li><code class="module"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_so.html">mod_so</a></code></li>
+                        </ul>
+                    </td>
+                    <td>
+                        <ul>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#ifmodule">&lt;IfModule&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_so.html#loadmodule">LoadModule</a></code></li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+            <p>
+                httpd是一个模块化的服务器，服务器的核心实际上只包含一些最基本的功能。一些额外的功能可以通过加载<a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/">模块</a>实现。默认情况下，一些<a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/module-dict.html#Status">基本的模块</a>在编译时就安装在httpd服务器里了。若在编译时打开了<a href="https://httpd.apache.org/docs/2.4/zh-cn/dso.html">动态加载</a>功能，这样子就可以在任何时候使用<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_so.html#loadmodule">LoadModule</a></code>指令单独添加和加载模块。否则的话，要添加或移除模块，就要重新进行编译。可以将配置指令放在<code class="directive"><a href="https://httpd.apache.org/docs/2.4/en/mod/core.html#ifmodule">IfModule</a></code>中，这样就可以根据“某个模块是否存在”来决定<code class="directive"><a href="https://httpd.apache.org/docs/2.4/en/mod/core.html#ifmodule">IfModule</a></code>中的配置指令是否被执行。然而，<code class="directive"><a href="https://httpd.apache.org/docs/2.4/en/mod/core.html#ifmodule">IfModule</a></code>不是必须的，在某些情况下，它反而会导致你发现不了某个重要模块没有被引用。
+            </p>
+            <p>
+                可以使用<code>-l</code>命令行选项来查看当前有哪些模块被编译进了服务器中。也可以使用<code>-M</code>命令行选项来查看动态加载哪些模块。
+            </p>
+        </div>
+        <div class="section">
+            <h2>指令的作用域</h2>
+            <table class="related">
+                <tr>
+                    <th>相关模块</th>
+                    <th>相关指令</th>
+                </tr>
+                <tr>
+                    <td>
+                        <ul>
+                        </ul>
+                    </td>
+                    <td>
+                        <ul>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directorymatch">&lt;DirectoryMatch&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#files">&lt;Files&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#filesmatch">&lt;FilesMatch&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#location">&lt;Location&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#locationmatch">&lt;LocationMatch&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#virtualhost">&lt;VirtualHost&gt;</a></code></li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+            <p>
+              主配置文件中的指令会作用于整个服务器。若是希望只改变服务器的一部分配置，可以将这些配置指令放在<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directorymatch">&lt;DirectoryMatch&gt;</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#files">&lt;Files&gt;</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#filesmatch">&lt;FilesMatch&gt;</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#location">&lt;Location&gt;</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#locationmatch">&lt;LocationMatch&gt;</a></code>片段中来确定其作用域。这些片段可以将配置指令的作用域限制在特定的文件系统路径或URL中。这些片段也可以进行嵌套，这样你就能进行更细的配置了。
+            </p>
+            <p>
+                httpd能同时为好几个网站提供服务，这种技术就叫做<a href="https://httpd.apache.org/docs/2.4/zh-cn/vhosts/">虚拟主机</a>。配置指令也可以放在<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#virtualhost">&lt;VirtualHost&gt;</a></code>片段中，这样就可以让这些指令只对某个特定的虚拟主机起作用。
+            </p>
+            <p>
+                大多数配置指令都可以放在上述的片段中，但也有些是不行的。例如，一些控制进程创建的指令只能放在服务器主上下文中。想要知道各指令都能放在哪些片段中，可以查阅对应指令的<a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/directive-dict.html#Context">上下文</a>。想要做进一步了解，在<a href="https://httpd.apache.org/docs/2.4/zh-cn/sections.html">Directory、Location、Files片段是如何工作的</a>一文中可以查看更多细节。
+            </p>
+        </div>
+        <div class="section">
+            <h2>.htaccess 文件</h2>
+            <table class="related">
+                <tr>
+                    <th>相关模块</th>
+                    <th>相关指令</th>
+                </tr>
+                <tr>
+                    <td>
+                        <ul>
+                        </ul>
+                    </td>
+                    <td>
+                        <ul>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#accessfilename">AccessFileName</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#allowoverride">AllowOverride</a></code></li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+            <p>
+                可以在web树中放一些特殊文件对配置进行分散管理。一般来说，这种特殊文件命名为<code>.htaccess</code>，但你也可以使用<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#accessfilename">AccessFileName</a></code>指令来设置这种特殊文件的文件名。<code>.htaccess</code>文件中的指令会作用于当前目录（即<code>.htaccess</code>文件所在目录）及子目录。<code>.htaccess</code>文件的语法和主配置文件完全一致。由于对于每个请求，httpd都会读取<code>.htaccess</code>文件，对这个特殊文件做的改动会立刻生效。
+            </p>
+            <p>
+                想要知道哪些指令能放在<code>.htaccess</code>文件中，可以查阅对应指令的<a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/directive-dict.html#Context">上下文</a>。服务器管理员可以在主配置文件中使用<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#allowoverride">AllowOverride</a></code>指令来设置哪些指令可以放在<code>.htaccess</code>文件中
+            </p>
+            <p>
+                若想要进一步了解<code>.htaccess</code>文件的相关信息，请查阅<a href="https://httpd.apache.org/docs/2.4/zh-cn/howto/htaccess.html">.htaccess教程</a>
+            </p>
+        </div>
+    </body>
+</html>

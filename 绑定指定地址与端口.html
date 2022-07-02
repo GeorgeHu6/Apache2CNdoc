@@ -1,0 +1,150 @@
+<!DOCTYPE doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+            <title>
+                绑定指定地址与端口
+            </title>
+            <link href="./style/main.css" rel="stylesheet">
+            </link>
+        </meta>
+    </head>
+    <body>
+        <div class="preamble">
+            <h1>
+                绑定指定地址与端口
+            </h1>
+            <p>
+                配置Apache HTTP服务器监听特定的地址和端口
+            </p>
+        </div>
+        <div class="section">
+            <h2>
+                概览
+            </h2>
+            <table class="related">
+                <tr>
+                    <th>相关模块</th>
+                    <th>相关指令</th>
+                </tr>
+                <tr>
+                    <td>
+                        <ul>
+                            <li><code class="module"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html">core</a></code></li>
+                            <li><code class="module"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mpm_common.html">mpm_common</a></code></li>
+                        </ul>
+                    </td>
+                    <td>
+                        <ul>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#virtualhost">&lt;VirtualHost&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mpm_common.html#listen">Listen</a></code></li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+            <p>
+                当你开启httpd服务时，会绑定到本机的一些端口和地址，等待即将到来的请求。默认情况下，会监听本机上的所有地址。若是要让httpd服务监听特定的端口、一些选定的地址，你需要进行一些配置。这一点往往是与<a href="https://httpd.apache.org/docs/2.4/zh-cn/vhosts/">&lt;VirtualHost&gt;</a>一起使用的，这可以使得httpd服务可以对不同的IP地址、主机名、端口号作出不同的回应。
+            </p>
+            <p>
+                <code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mpm_common.html#listen">Listen</a></code>指令就是用来告诉服务器应该接受哪些特定端口或是某些特定地址特定端口的请求。若用<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mpm_common.html#listen">Listen</a></code>只指定一个端口号，服务器会监听所有地址的这个端口；也可以指定某个IP地址的某个端口，服务器只会监听这个特定的端口。你可以用多个<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mpm_common.html#listen">Listen</a></code>指令来指定好多个需要监听的地址、端口，服务器会监听所有列在<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mpm_common.html#listen">Listen</a></code>后的所有IP地址与端口号。
+            </p>
+            <p>
+                举个例子，让服务器接收所有来自于80与8000端口的连接请求：
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b>Listen</b> 80</p>
+                    <p><b>Listen</b> 8000</p>
+                </pre>
+            </div>
+            <p>
+                你还可以将端口开放给某个特定的地址：
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b>Listen</b> 192.0.2.1:80</p>
+                    <p><b>Listen</b> 192.0.2.5:8000</p>
+                </pre>
+            </div>
+            <p>
+                IPv6的地址必须使用方括号括起来，像这样：
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b>Listen</b> [2001:db8::a00:20ff:fea7:ccea]:80</p>
+                </pre>
+            </div>
+            <p></p>
+        </div>
+        <div class="section">
+            <h2>通过restart更改监听的配置</h2>
+            <p>
+                当需要重启httpd服务使，需要考虑到在<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mpm_common.html#listen">Listen</a></code>上做的修改。使用restart重启时，httpd不会将原来已经绑定的IP地址和端口解绑，如果新指定的地址和端口与原来的有冲突的话，重启将会失败，httpd的服务会终止。
+            </p>
+            <p>
+                例如，原来的配置是：
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b>Listen</b> 127.0.0.1:80</p>
+                </pre>
+            </div>
+            <p>
+                若是将配置改为下面这样子，再进行重启，会发生冲突。
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b>Listen</b> 80</p>
+                </pre>
+            </div>
+            <p>
+                要是要以修改后的配置为标准，以覆盖原来的配置，需要先用stop停止服务，在用start开启
+            </p>
+        </div>
+        <div class="section">
+            <h2>IPv6的一些特殊的配置</h2>
+            <p>
+                越来越多的平台支持IPv6，Apache的<a href="https://httpd.apache.org/docs/2.4/zh-cn/glossary.html#apr">APR</a>也支持非常多的平台，使得httpd可以使用IPv6 socket并在IPv6的基础上处理和发送请求。
+            </p>
+            <p>
+                对httpd的管理员来说，IPv6 socket是否能同时处理IPv4和IPv6的连接请求是一个棘手的问题。除了FreeBSD、NetBSD、OpenBSD中默认不开启外，在大多数平台上，都可以使用IPv4的映射地址上。在这些默认不开启这种映射的平台上，可以通过一个额外的<a href="https://httpd.apache.org/docs/2.4/zh-cn/programs/configure.html">配置</a>参数来配置httpd
+            </p>
+            <p>
+                从另一方面来说，在某些平台，例如Linux、Tru64上，映射地址是处理IPv6和IPv4的唯一方法。若你想要用最少的socket来处理IPv4和IPv6的连接，你就需要使用IPv4映射地址，使用<code>--enable-v4-mapped</code>配置选项即可
+            </p>
+            <p>
+                无论你的平台、APR支持什么，如果你想要只处理IPv4连接，只需要确保<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mpm_common.html#listen">Listen</a></code>指令指定的全是IPv4地址即可。下面是一个例子
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b>Listen</b> 0.0.0.0:80</p>
+                    <p><b>Listen</b> 192.0.2.1:80</p>
+                </pre>
+            </div>
+            <p>
+                在一些平台上，可以把IPv4和IPv6的连接在不同的socket上处理（这就需要禁用IPv4映射）。使用<code>--disable-v4-mapped</code>配置选项即可，这个配置选项在FreeBSD、NetBSD、OpenBSD中默认开启。
+            </p>
+        </div>
+        <div class="section">
+            <h2>用Listen指定协议</h2>
+            <p>
+                在大多数配置中使用<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mpm_common.html#listen">Listen</a></code>指令时，都不需要指定协议。在不指定协议时，443端口默认使用<code>https</code>协议，其他端口均默认使用<code>http</code>协议。协议决定了用来处理请求的模块，同时可以使用<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#acceptfilter">AcceptFilter</a></code>对一些协议做一些特别的优化.
+            </p>
+            <p>
+                在一些非常规的端口上使用一些特定的协议时，你就要进行设置，例如你要在8443端口上使用https协议：
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b>Listen</b> 192.170.2.1:8443 https</p>
+                </pre>
+            </div>
+            <p></p>
+        </div>
+        <div class="section">
+            <h2>与Virtual Hosts一起使用</h2>
+            <p>
+                <code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mpm_common.html#listen">Listen</a></code>指令只会配置主服务器监听指定的地址和端口，显然在虚拟主机上不会生效。不使用<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#virtualhost">&lt;VirtualHost&gt;</a></code>指令时，服务器会用同样的策略处理所有的请求；若是使用了<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#virtualhost">&lt;VirtualHost&gt;</a></code>指令，可以让服务器对不同的请求采取不同的策略。也就是说，对每个指定了不同地址和端口的虚拟主机，都需要设置不同的<code class="directive"><a href="https://httpd.apache.org/docs/2.4/en/mod/core.html#virtualhost">&lt;VirtualHost&gt;</a></code>section。显然，若是你为没有指定过的地址和端口配置了一个虚拟主机，这个虚拟主机肯定是没用的。
+            </p>
+        </div>
+    </body>
+</html>
