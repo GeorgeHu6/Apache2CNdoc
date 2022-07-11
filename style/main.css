@@ -1,15 +1,14 @@
 @charset "utf-8";
 h1 {
-  padding: 0.2em;
-  margin: 0;
-  border: 1px solid #405871;
-  background-color: inherit;
-  color: #036;
-  text-decoration: none;
-  font-size: 22px;
-  font-weight: bold;
+    padding: 0.2em;
+    margin: 0;
+    border: 1px solid #405871;
+    background-color: inherit;
+    color: #036;
+    text-decoration: none;
+    font-size: 22px;
+    font-weight: bold;
 }
-
 h2 {
     padding: 0.2em 0 0.2em 0.2em;
     margin: 0 0 0.5em 0;
@@ -20,7 +19,6 @@ h2 {
     border-bottom: 1px solid #000;
     text-align: left;
 }
-
 h3 {
     background-color: inherit;
     color: #000;
@@ -30,7 +28,6 @@ h3 {
     margin: 1.3em 0 0.4em 0;
     padding: 0 0 0 0.2em;
 }
-
 h4 {
     background-color: inherit;
     color: #000;
@@ -40,86 +37,70 @@ h4 {
     margin: 1.3em 0 0.2em 0;
     padding: 0 0 0 0.2em;
 }
-
 .preamble {
     padding-bottom: 1em;
     margin-left: 30px;
 }
-
 .section h2 {
     background-color: #405871;
     color: #fff;
 }
-
 .section {
-  margin-left: 4em;
+    margin-left: 4em;
 }
-
 table {
     border: 1px solid #aaa;
     padding: 2px;
     margin-top: 0.5em;
 }
-
 table .related {
     border-collapse: separate;
 }
-
 td, th {
     empty-cells: show;
     text-align: left;
     line-height: 1.3em;
 }
-
 table.related th {
     padding: 0.2ex 0.3em;
     background-color: #e5ecf3;
     color: #405871;
     vertical-align: middle;
 }
-
 code {
     font-size: 1.2em;
 }
-
 table.related td ul, table.related td li {
     list-style-type: none;
     margin: 0;
     padding: 0;
 }
-
 table.related td {
     padding: 0.2ex 0.3em;
 }
-
 li, dt, dd {
     line-height: 1.3em;
 }
-
 code.directive, code.directive a:link {
     color: #287f00;
     background-color: inherit;
 }
-
 code.module, code.module a:link {
     color: #8b4513;
     background-color: inherit;
 }
-
 div.example pre {
     padding: 0;
     margin: 0;
     padding: 0.8em;
     max-width: 90em;
 }
-
 pre.prettyprint {
     tab-size: 4;
     overflow: auto;
     overflow-y: hidden;
     line-height: 0.7em;
 }
-
 pre.lang-config {
     background-color: #e5ecf3;
     color: #000;
@@ -127,4 +108,29 @@ pre.lang-config {
 }
 .lang-config p {
     margin: 0;
+}
+.lang-config .tag {
+    color: #821;
+    font-weight: bold;
+    white-space: nowrap;
+    display: inline-block;
+}
+.lang-config .kwd {
+    color: #128;
+    font-weight: bold;
+    white-space: nowrap;
+    display: inline-block;
+}
+.lang-config .com {
+    color: #c46d34;
+    white-space: nowrap;
+}
+.lang-config .lit {
+    color: #077;
+    white-space: nowrap;
+}
+.pun {
+    color: #660;
+    white-space: nowrap;
+    display: inline-block;
 }

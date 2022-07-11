@@ -1,0 +1,71 @@
+<!DOCTYPE doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+            <title>
+                配置片段
+            </title>
+            <link href="./style/main.css" rel="stylesheet">
+            </link>
+        </meta>
+    </head>
+    <body>
+        <div class="preamble">
+            <h1>
+                配置片段
+            </h1>
+            <p>
+               <a href="./配置文件.html">配置文件</a>中的指令会在整个服务器上产生作用，或者只对特定的目录、文件、主机、URL做出限制。这篇文档描述了如何使用配置片段容器或者<code>.htaccess</code>文件来改变其他配置指令的作用域。
+            </p>
+        </div>
+        <div class="section">
+            <h2>配置片段容器的种类</h2>
+            <table class="related">
+                <tr>
+                    <th>相关模块</th>
+                    <th>相关指令</th>
+                </tr>
+                <tr>
+                    <td>
+                        <ul>
+                            <li><code class="module"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html">core</a></code></li>
+                            <li><code class="module"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_version.html">mod_version</a></code></li>
+                            <li><code class="module"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_proxy.html">mod_proxy</a></code></li>
+                        </ul>
+                    </td>
+                    <td>
+                        <ul>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directorymatch">&lt;DirectoryMatch&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#files">&lt;Files&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#filesmatch">&lt;FilesMatch&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#if">&lt;If&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#ifdefine">&lt;IfDefine&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#ifmodule">&lt;IfModule&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_version.html#ifversion">&lt;IfVersion&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#location">&lt;Location&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#locationmatch">&lt;LocationMatch&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_md.html#mdomainsetsection">&lt;MDomainSet&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_proxy.html#proxy">&lt;Proxy&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_proxy.html#proxymatch">&lt;ProxyMatch&gt;</a></code></li>
+                            <li><code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#virtualhost">&lt;VirtualHost&gt;</a></code></li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+            <p>
+                有两种最基本的容器。大多数容器会对每一个请求进行评估。闭合的指令标签只对那些相匹配的容器生效。其中的<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#ifdefine">&lt;IfDefine&gt;</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#ifmodule">&lt;IfModule&gt;</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_version.html#ifversion">&lt;IfVersion&gt;</a></code>容器，只会在服务器开启或重启时被评估。若是在服务器开启时，其中的条件成立，其包裹的指令会对所有请求生效；若条件不成立，其中的指令都会被忽略
+            </p>
+            <p>
+                当你需要用命令行参数是否定义来决定是否应用某些指令时，可以使用<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#ifdefine">&lt;IfDefine&gt;</a></code>来包裹他们。例如，若使用了下面的配置，就可以使用<code>httpd -D ClosedForNow</code>来开启服务器，使得所有请求都被重定向到另一个站点中
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b>&lt;IfDefine</b> ClosedForNow&gt;</p>
+                    <p><b>Redirect</b> "/" "http://otherserver.example.com/"</p>
+                    <p><b>&lt;/IfDefine</b>&gt;</p>
+                </pre>
+            </div>
+        </div>
+    </body>
+</html>
