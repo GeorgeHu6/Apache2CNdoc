@@ -94,12 +94,13 @@ div.example pre {
     margin: 0;
     padding: 0.8em;
     max-width: 90em;
+    font-size: 1.2em;
 }
 pre.prettyprint {
     tab-size: 4;
     overflow: auto;
     overflow-y: hidden;
-    line-height: 0.7em;
+    line-height: 0.5em;
 }
 pre.lang-config {
     background-color: #e5ecf3;
@@ -109,17 +110,13 @@ pre.lang-config {
 .lang-config p {
     margin: 0;
 }
-.lang-config .tag {
+.tag {
     color: #821;
     font-weight: bold;
-    white-space: nowrap;
-    display: inline-block;
 }
-.lang-config .kwd {
+.kwd {
     color: #128;
     font-weight: bold;
-    white-space: nowrap;
-    display: inline-block;
 }
 .lang-config .com {
     color: #c46d34;
@@ -133,4 +130,17 @@ pre.lang-config {
     color: #660;
     white-space: nowrap;
     display: inline-block;
+}
+.indent2 {
+    margin-left: 2em;
+}
+.indent3 {
+    margin-left: 4em;
+}
+div.note,
+div.warning {
+    background-color: #eee;
+    color: #036;
+    padding: 0.5em;
+    margin: 1em 2em 1em 1em;
 }

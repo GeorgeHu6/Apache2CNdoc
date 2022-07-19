@@ -61,9 +61,375 @@
             </p>
             <div class="example">
                 <pre class="lang-config prettyprint">
-                    <p><b>&lt;IfDefine</b> ClosedForNow&gt;</p>
-                    <p><b>Redirect</b> "/" "http://otherserver.example.com/"</p>
-                    <p><b>&lt;/IfDefine</b>&gt;</p>
+                    <p><b class="tag">&lt;IfDefine</b> ClosedForNow&gt;</p>
+                    <p><b class="kwd indent2">Redirect</b> "/" "http://otherserver.example.com/"</p>
+                    <p><b class="tag">&lt;/IfDefine</b>&gt;</p>
+                </pre>
+            </div>
+            <p>
+                <code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#ifmodule">&lt;IfModule&gt;</a></code>的作用是类似的，它可以使得其包裹的命令在某模块启用时执行。所指定的模块要么是静态编译在服务器中的，要么是动态编译并且使用<code><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_so.html#loadmodule">LoadModule</a></code>进行加载（显然要在<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#ifmodule">&lt;IfModule&gt;</a></code>前进行加载）。当你想让配置文件在无论某些模块有无安装的情况下都能正确工作时，才应该使用<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#ifmodule">&lt;IfModule&gt;</a></code>。而当你想要使得包裹的命令都生效时，就不要使用<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#ifmodule">&lt;IfModule&gt;</a></code>，这会把很多模块缺失的错误信息压缩掉。
+            </p>
+            <p>
+                在下面的例子中，只有当<code><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_mime_magic.html">mod_mime_magic</a></code>模块可用时，<code><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_mime_magic.html#mimemagicfile">MimeMagicFile</a></code>命令才会生效
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b class="tag">&lt;IfModule</b> mod_mime_magic.c&gt;</p>
+                    <p><b class="kwd indent2">MimeMagicFile</b> "conf/magic"</p>
+                    <p><b class="tag">&lt;/IfModule</b>&gt;</p>
+                </pre>
+            </div>
+            <p>
+                类似的还有<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_version.html#ifversion">&lt;IfVersion&gt;</a></code>，其包裹的指令只有当服务器的版本条件满足时才会生效。<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_version.html#ifversion">&lt;IfVersion&gt;</a></code>用于测试套件和大型网络中，需要对不同版本的httpd进行不同的配置
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b class="tag">&lt;IfVersion</b> >= 2.4&gt;</p>
+                    <p><span># this happens only in versions greater or</span><br><br><span># equal 2.4.0.</span></p>
+                    <p><b class="tag">&lt;/IfVersion</b>&gt;</p>
+                </pre>
+            </div>
+            <p>
+                上述的三个配置片段，都能使用“!”来给其判断条件取反。另外，这些片段也可以嵌套起来实现更加复杂的约束。
+            </p>
+        </div>
+        <div class="section">
+            <h2>文件系统、Webspace和布尔表达式</h2>
+            <p>
+                最常用的配置片段容器，是用来改变文件系统或Webspace中特定位置的配置的。首先，需要搞明白文件系统和Webspace之间的区别。文件系统是操作系统看硬盘的视角，而网络空间是从网页服务器发送、客户端接收站点的角度来看的。例如，若使用默认安装，在Unix文件系统中，Apache httpd会位于<code>/usr/local/apache2</code>；在Windows文件系统中，会位于<code>c:/Program Files/Apache Group/Apache2</code>。（需要注意的是，无论在Unix还是Windows下，配置文件中的路径分隔符都要使用正斜杠）。Webspace下，路径<code>/dir/</code>与文件系统中的<code>/usr/local/apache2/htdocs/dir/</code>相关联。因为网页可能是从数据库或其他位置动态生成的，Webspace不需要直接映射到文件系统，
+            </p>
+            <h3>文件系统容器</h3>
+            <p>
+                <code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code>和<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#files">&lt;Files&gt;</a></code>指令及其正则表达式对应项，可以将指令应用于文件系统的某些部分。<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code>片段中的指令会应用于指定的文件系统目录及其所有子目录（包括子目录下的所有文件）。使用<a href="https://httpd.apache.org/docs/2.4/zh-cn/howto/htaccess.html">.htaccess文件</a>也可以达到同样的效果。下面的例子启用了对<code>/var/web/dir1</code>及其所有子目录的索引
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b class="tag">&lt;Directory</b> "/var/web/dir1"&gt;</p>
+                    <p><b class="kwd indent2">Options</b> +Indexes</p>
+                    <p><b class="tag">&lt;/Directory</b>&gt;</p>
+                </pre>
+            </div>
+            <p>
+                <code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#files">&lt;Files&gt;</a></code>片段中的指令会作用于指定的文件，指定的文件并不会区分其所在目录。例如，若把下面的配置片段写在主配置文件中，无论在哪个目录下，对任何名为<code>private.html</code>的访问都会被拒绝。
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b class="tag">&lt;Files</b> "private.html"&gt;</p>
+                    <p><b class="kwd indent2">Require</b> all denied</p>
+                    <p><b class="tag">&lt;/Files</b>&gt;</p>
+                </pre>
+            </div>
+            <p>
+                要想对某个文件夹下的某文件做出相关限制，把<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#files">&lt;Files&gt;</a></code>和<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code>组合起来使用就可以了。在下面的例子中，会拒绝对<code>/var/web/dir1</code>下任何<code>private.html</code>的请求
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p>&lt;<b class="tag">Directory</b> "/var/web/dir1"&gt;</p>
+                    <p><b class="tag indent2">&lt;Files</b> "private.html"&gt;</p>
+                    <p><b class="kwd indent3">Require</b> all denied</p>
+                    <p><b class="tag indent2">&lt;/Files</b>&gt;</p>
+                    <p><b class="tag">&lt;/Directory</b>&gt;</p>
+                </pre>
+            </div>
+            <h3>Webspace容器</h3>
+            <p>
+                <code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#location">&lt;Location&gt;</a></code>命令及其搭配的<a href="https://httpd.apache.org/docs/2.4/zh-cn/glossary.html#regex">正则表达式</a>，可以改变webspace中内容的配置。在下面的例子中，会拒绝所有对以<code>/private</code>开头的URL地址的请求。
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b class="tag">&lt;LocationMatch</b> "^/private"&gt;</p>
+                    <p><b class="kwd indent2">Require</b> all denied</p>
+                    <p><b class="tag">&lt;/LocationMatch</b>&gt;</p>
+                </pre>
+            </div>
+            <p>
+                需要注意的是，<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#location">&lt;Location&gt;</a></code>指令和文件系统没有任何关系。例如，将特定的URL映射到一个由<code class="module"><a href="https://httpd.apache.org/docs/2.4/en/mod/mod_status.html">mod_status</a></code>提供的处理程序上。文件系统中并不需要有<code>server-status</code>的文件
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b class="tag">&lt;Location</b> "server-status"&gt;</p>
+                    <p><b class="kwd indent2">SetHandler</b> server-status</p>
+                    <p><b class="tag">&lt;/Location</b>&gt;</p>
+                </pre>
+            </div>
+            <h3>重叠的Webspace</h3>
+            <p>
+                对于重叠的URL，需要考虑他们的顺序，下面是几个例子，需要注意地址的大小范围的排序
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b class="tag">&lt;Location</b> "/foo"&gt;</p>
+                    <p><b class="tag">&lt;/Location</b>&gt;</p>
+                    <p><b class="tag">&lt;Location</b> "/foo/bar"&gt;</p>
+                    <p><b class="tag">&lt;/Location</b>&gt;</p>
+                </pre>
+            </div>
+            <br>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b class="directive">Alias</b> "/foo/bar" "/srv/www/uncommon/bar"</p>
+                    <p><b class="directive">Alias</b> "/foo"     "/srv/www/common/foo"</p>
+                </pre>
+            </div>
+            <br>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b class="directive">ProxyPass</b> "/special-area" "http://special.example.com" smax=5 max=10</p>
+                    <p><b class="directive">ProxyPass</b> "/" "balancer://mycluster/" stickysession=JSESSIONID|jsessionid nofailover=On</p>
+                </pre>
+            </div>
+            <h3>通配符和正则表达式</h3>
+            <p>
+                上述的<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#files">&lt;Files&gt;</a></code>和<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#location">&lt;Location&gt;</a></code>指令都能够使用shell样式的通配符，格式与C语言中的<code>fnmatch</code>类似。星号“*”用以匹配任何字符序列，“?”用以匹配任何单个字符，“[待匹配序列]”用以匹配待匹配序列中的任一字符。需要注意的是，“/”不会被任何通配符匹配，而需要显式地指定。
+            </p>
+            <p>
+                若需要更加灵活的匹配，每个片段容器都有一个相对应的正则匹配形式——<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directorymatch">&lt;DirectoryMatch&gt;</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#filesmatch">&lt;FilesMatch&gt;</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#locationmatch">&lt;LocationMatch&gt;</a></code>。这些配置片段容器中可以使用perl兼容的正则表达式，下面是几个例子
+            </p>
+            <p>
+                以下使用通配符更改所有用户目录的配置。
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b class="tag">&lt;Directory</b> "/home/*/public_html"&gt;</p>
+                    <p><b class="kwd indent2">Options</b> Indexes</p>
+                    <p><b class="tag">&lt;/Directory</b>&gt;</p>
+                </pre>
+            </div>
+            <p>
+                以下使用正则表达式禁止对一些图片格式的请求。
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b class="tag">&lt;FilesMatch</b> "\.(?i:gif|jpe?g|png)$"&gt;</p>
+                    <p><b class="kwd indent2">Require</b> all denied</p>
+                    <p><b class="tag">&lt;/FilesMatch</b>&gt;</p>
+                </pre>
+            </div>
+            <p>
+                包含命名组和反向引用的正则表达式会以大写的形式添加到环境中。这样就可以从表达式和模块（例如<code class="module"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_rewrite.html">mod_rewrite</a></code>）中引用文件名路径和URL
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b class="tag">&lt;DirectoryMatch</b> "^/var/www/combined/(?&lt;SITENAME&gt;[^/]+)"&gt;</p>
+                    <p><b class="kwd indent2">Require</b> ldap-group "cn=%{env:MATCH_SITENAME},ou=combined,o=Example"</p>
+                    <p><b class="tag">&lt;/DirectoryMatch</b>&gt;</p>
+                </pre>
+            </div>
+            <h3>布尔表达式</h3>
+            <p>
+                可以使用<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#if"></a>&lt;If&gt;</code>指令并结合布尔表达式来改变配置。下面的配置会拒绝以“http://www.example.com/”为HTTP Referer标头开头的请求
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b class="tag">&lt;If</b> "!(%{HTTP_REFERER} -strmatch 'http://www.example.com/*')"&gt;</p>
+                    <p><b class="kwd indent2">Require</b> all denied</p>
+                    <p><b class="tag">&lt;/If</b>&gt;</p>
+                </pre>
+            </div>
+            <h3>什么时候使用这些指令</h3>
+            <p>
+                选择使用文件系统还是webspace指令还是非常简单的。当指令需要应用到文件系统中去时，往往使用<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#files">&lt;Files&gt;</a></code>。当需要应用到不在文件系统中的对象去的时候（例如从数据库中得到的一个页面），使用<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#location">&lt;Location&gt;</a></code>。
+            </p>
+            <p>
+                需要注意的是，由于可以有好些个不同的webspace映射到相同的文件系统位置不要使用<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#location">&lt;Location&gt;</a></code>来限制对文件系统中对象的访问。这会导致需要限制的文件系统对象变得可被访问。
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b class="tag">&lt;Location</b> "/dir/"&gt;</p>
+                    <p><b class="kwd indent2">Require</b> all denied</p>
+                    <p><b class="tag">&lt;/Location</b>&gt;</p>
+                </pre>
+            </div>
+            <p>
+                上面的配置可以正确地拒绝对<code>http://yoursite.example.com/dir/</code>的请求，但若是在一个大小写不敏感的文件系统中，可以通过访问<code>http://yoursite.example.com/DIR/</code>绕过访问限制。相比之下，可以通过<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code>指令对文件系统中的某一位置做出限制，这就不会受到请求方式的影响了（通过符号链接的访问可能并不会被限制，需要额外注意。若要提高安全性，应该使用<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#options">Options</a></code>指令来禁用符号链接）。
+            </p>
+            <p>
+                若您使用的是大小写敏感的文件系统，上面所述的一些方法可能都不适用，但事实上可以用一些其他的方法来使不同的webspace映射到文件系统的同一位置上。因此，您应该尽量使用文件系统容器指令。有一个例外情况，当使用配置<code>&lt;Location "/"&gt;</code>时，其中的所有命令都会无视请求地应用。
+            </p>
+            <h3>片段的嵌套</h3>
+            <p>
+                有些类型的片段可以嵌套在其他类型中。例如，<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#files">&lt;Files&gt;</a></code>可以嵌套在<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code>中；<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#if">&lt;If&gt;</a></code>可以嵌套在<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#location">&lt;Location&gt;</a></code>和<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#files">&lt;Files&gt;</a></code>中（但是不能再次嵌套在<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#if">&lt;If&gt;</a></code>中）。其中的正则表达式部分写法相同。
+            </p>
+            <p>
+                另外，嵌套部分在相同类型的非嵌套部分之后合并。
+            </p>
+        </div>
+        <div class="section">
+            <h2>虚拟主机</h2>
+            <p>
+                <code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#virtualhost">&lt;VirtualHost&gt;</a></code>容器中的指令只对特定的主机生效。若要在同一台机器上运行好几个配置不同的主机，虚拟主机容器就非常有用。详见<a href="https://httpd.apache.org/docs/2.4/zh-cn/vhosts/">虚拟主机文档</a>
+            </p>
+        </div>
+        <div class="section">
+            <h2>代理</h2>
+            <p>
+                <code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_proxy.html#proxy">&lt;Proxy&gt;</a></code>和<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_proxy.html#proxymatch">&lt;ProxyMatch&gt;</a></code>中的指令只会应用于通过<code class="module"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_proxy.html">mod_proxy</a></code>的代理服务器访问的特定站点。下面的配置只允许一些客户端通过代理服务器访问<code>www.example.com</code>
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b class="tag">&lt;Proxy</b> "http://www.example.com/*"&gt;</p>
+                    <p><b class="kwd indent2">Require</b> host yournetwork.example.com</p>
+                    <p><b class="tag">&lt;/Proxy</b>&gt;</p>
+                </pre>
+            </div>
+            <br>
+        </div>
+        <div class="section">
+            <h2>哪些指令可用？</h2>
+            <p>
+                要知道在各种配置片段中都有哪些指令可用，可以查阅指令的<a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/directive-dict.html#Context">上下文</a>。在<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code>中能使用的指令，在语法上也能在<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directorymatch">&lt;DirectoryMatch&gt;</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#files">&lt;Files&gt;</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#filesmatch">&lt;FilesMatch&gt;</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#location">&lt;Location&gt;</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#locationmatch">&lt;LocationMatch&gt;</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_proxy.html#proxy">&lt;Proxy&gt;</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_proxy.html#proxy">&lt;Proxy&gt;</a></code>和<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_proxy.html#proxymatch">&lt;ProxyMatch&gt;</a></code>中使用。但这也有些例外：
+                <ul>
+                    <li>
+                        <code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#allowoverride">AllowOverride</a></code>只能在<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code>中使用
+                    </li>
+                    <li>
+                        <code>FollowSymlinks</code>和<code>SymLinksIfOwnerMatch</code>选项<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#options">Options</a></code>只能用在<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code>或<code>.htaccess</code>文件中。
+                    </li>
+                    <li>
+                        <code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#options">Options</a></code>指令不能用在<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#files">&lt;Files&gt;</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#filesmatch">&lt;FilesMatch&gt;</a></code>片段中
+                    </li>
+                </ul>
+            </p>
+        </div>
+        <div class="section">
+            <h2>片段的合并</h2>
+            <p>
+                配置片段是按一定的优先级顺序生效的，编排的顺序会对配置的解释产生重要影响，需要了解其工作方式。配置合并的顺序为：
+                <ol>
+                    <li>
+                        <code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code>（不含正则表达式）和<code>.htaccess</code>。（若有<code>.htaccess</code>，会覆盖<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code>）
+                    </li>
+                    <li>
+                        <code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directorymatch">&lt;DirectoryMatch&gt;</a></code>和含有正则表达式的<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code>
+                    </li>
+                    <li>
+                        <code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#files">&lt;Files&gt;</a></code>和<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#filesmatch">&lt;FilesMatch&gt;</a></code>
+                    </li>
+                    <li>
+                        <code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#location">&lt;Location&gt;</a></code>和<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#locationmatch">&lt;LocationMatch&gt;</a></code>
+                    </li>
+                    <li>
+                        <code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#if">&lt;If&gt;</a></code>
+                    </li>
+                </ol>
+            </p>
+            <p>
+                还有一些需要注意的点
+                <ul>
+                    <li>
+                        除了<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code>之外，各组片段会按照他们在配置文件中的顺序进行处理。若有<code>&lt;Location "/foo/bar"&gt;</code>和<code>&lt;Location "/foo"&gt;</code>这两个片段，都会应用于对<code>/foo/bar</code>的请求，效果与这两个片段在配置文件中出现的顺序有关。
+                    </li>
+                    <li>
+                        对于不带正则表达式的<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code>片段，按路径从短到长的原则进行匹配。例如<code>&lt;Directory "/var/web/dir"&gt;</code>会在<code>&lt;Directory "/var/web/dir/subdir"&gt;</code>之前被处理。
+                    </li>
+                    <li>
+                        若有多个<code>&lt;Directory "/var/web/dir"&gt;</code>片段应用到了同一个目录，会按照配置文件的顺序进行处理。
+                    </li>
+                    <li>
+                        通过<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#include">Include</a></code>引入的配置，在配置文件中的生效位置与<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#include">Include</a></code>一致
+                    </li>
+                    <li>
+                        <code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#virtualhost">&lt;VirtualHost&gt;</a></code>片段外部的指令会优先应用，这就是说虚拟主机片段中的内容可以覆盖服务器的主配置。
+                    </li>
+                    <li>
+                        当由<code class="module"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_proxy.html">mod_proxy</a></code>为请求提供服务时，上面优先级顺序中的<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code>会被<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_proxy.html#proxy">&lt;Proxy&gt;</a></code>代替
+                    </li>
+                </ul>
+            </p>
+            <div class="note">
+                <h3>小贴士</h3>
+                <p>
+                    事实上，在名称转换阶段（也就是<code>Aliases</code>和<code>DocumentRoots</code>将URL映射到文件名的阶段）之前，会执行一个<code>&lt;Location&gt;</code>或<code>&lt;LocationMatch&gt;</code>序列。在名称转换阶段结束之后，<code>&lt;Location&gt;</code>或<code>&lt;LocationMatch&gt;</code>的执行结果会被舍弃。
+                </p>
+            </div>
+            <h3>模块和配置片段之间的关系</h3>
+            <p>
+                在阅读了“配置片段是如何合并的”之后，你可能会有一个疑问，例如<code class="module"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_rewrite.html">mod_rewrite</a></code>这样的特定模块，其中的指令是如何、什么时候处理的。理解这个问题是很重要的，但这也需要一定的背景知识。每一个httpd模块都能管理好自己的配置，<code>httpd.conf</code>中的每个指令都指明了特定上下文中的一个配置。httpd在读取命令时不会执行它们。
+            </p>
+            <p>
+                在运行过程中，httpd的核心会按照上述顺序遍历各配置片段，最终确定要对当前请求使用怎样的配置.当匹配到第一个配置时，将其作为当前配置，若后面还有匹配该请求的配置片段，每个指令所对应的模块都有机会对这两个配置片段进行合并。经过合并得到的片段会继续和后面相匹配的配置片段进行合并，直到配置片段全部被评估结束。
+            </p>
+            <p>
+                在上面这些步骤完成后，才会真正开始对HTTP请求的处理。每一个模块都有机会来执行任何任务。各模块会从httpd的核心获得各自合并好的最终配置，模块会据此来确定他们应该如何对请求进行操作。
+            </p>
+            <p>
+                此处举个例子。在下面的配置中，使用<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_headers.html">mod_headers</a></code>模块中的<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_headers.html#header">Header</a></code>指令来设置一个HTTP请求头。思考httpd会为<code>CustomHeaderName</code>头中的请求<code>/example/index.html</code>设置什么值？
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b class="tag">&lt;Directory</b> "/"&gt;</p>
+                    <p><b class="kwd indent2">Header</b> set CustomHeaderName one</p>
+                    <p><b class="tag indent2">&lt;FilesMatch</b> ".*"&gt;</b></p>
+                    <p><b class="kwd indent3">Header</b> set CustomHeaderName three</p>
+                    <p><b class="tag indent2">&lt;/FilesMatch</b>&gt;</b></p>
+                    <p><b class="tag">&lt;/Directory</b>&gt;</p>
+
+                    <p><b class="tag">&lt;Directory</b> "/"&gt;</p>
+                    <p><b class="kwd indent2">Header</b> set CustomHeaderName two</p>
+                    <p><b class="tag">&lt;/Directory</b>&gt;</p>
+                </pre>
+            </div>
+            <ul>
+                <li>
+                    <code>Directory "/"</code>最先匹配到，将<code>CustomHeaderName</code>头设为<code>one</code>
+                </li>
+                <li>
+                    接着，匹配到<code>Directory "/example"</code>，<code>CustomHeaderName</code>头覆盖为<code>two</code>
+                </li>
+                <li>
+                    然后，<code>FilesMatch ".*"</code>片段匹配到，<code>CustomHeaderName</code>头被设为<code>three</code>
+                </li>
+                <li>
+                    最后，会调用<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_headers.html">mod_headers</a></code>模块来处理当前的HTTP请求，上面最终值为<code>three</code>的<code>CustomHeaderName</code>头也会传给<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_headers.html">mod_headers</a></code>模块
+                </li>
+            </ul>
+            <p>
+                <code>.htaccess</code>文件的配置合并优先级与上面所述相同。需要注意的是，像<code>Directory</code>、<code>FilesMatch</code>这样的配置片段，和像<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_headers.html#header">Header</a></code>、<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/mod_rewrite.html#rewriterule">RewriteRule</a></code>这样模块中的特定指令是不一样的，它们的操作不是在同一层面的。
+            </p>
+            <h3>一些实用的例子</h3>
+            <p>
+                下面的配置中，A~E分别表示一些指令，各指令的执行顺序为A、B、C、D、E
+            </p>
+            <div class="example">
+                <pre class="prettyprint lang-config">
+                    <p><b class="tag">&lt;Location</b> "/"&gt;</p>
+                    <p><b class="kwd indent2">E</b></p>
+                    <p><b class="tag">&lt;/Location</b>&gt;</p>
+
+                    <p><b class="tag">&lt;Files</b> "f.html"&gt;</p>
+                    <p><b class="kwd indent2">D</b></p>
+                    <p><b class="tag">&lt;/Files</b>&gt;</p>
+
+                    <p><b class="tag">&lt;VirtualHost</b> *&gt;</p>
+                    <p><b class="tag indent2">&lt;Directory&gt</b> "/a/b"</p>
+                    <p><b class="kwd indent3">B</b></p>
+                    <p><b class="tag indent2">&lt;/Directory&gt;</b></p>
+                    <p><b class="tag">&lt;/VirtualHost</b>&gt;</p>
+
+                    <p><b class="tag">&lt;DirectoryMatch</b> "^.*b$"&gt;</p>
+                    <p><b class="kwd indent2">C</b></p>
+                    <p><b class="tag">&lt;/DirectoryMatch</b>&gt;</p>
+
+                    <p><b class="tag">&lt;Directory</b> "/a/b"&gt;</p>
+                    <p><b class="kwd indent2">A</b></p>
+                    <p><b class="tag">&lt;/Directory</b>&gt;</p>
+                </pre>
+            </div>
+            <p>
+                再举一个更加具体的例子，无论<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#directory">&lt;Directory&gt;</a></code>中放了多少限制条件，由于<code class="directive"><a href="https://httpd.apache.org/docs/2.4/zh-cn/mod/core.html#location">&lt;Location&gt;</a></code>片段会在最后进行操作，很可能会使服务器可以无限制访问。总之，配置合并的顺序非常重要，需要额外注意。
+            </p>
+            <div class="example">
+                <pre class="lang-config prettyprint">
+                    <p><b class="tag">&lt;Location</b> "/"&gt;</p>
+                    <p><b class="kwd indent2">Require</b> all granted</p>
+                    <p><b class="tag">&lt;/Location</b>&gt;</p>
+
+                    <p><b class="tag">&lt;Directory</b> "/"&gt;</p>
+                    <p><b class="tag indent2">&lt;RequireAll</b>&gt;</p>
+                    <p><b class="kwd indent3">Require</b> all granted</p>
+                    <p><b class="kwd indent3">Require</b> not host badguy.example.com</p>
+                    <p><b class="tag indent2">&lt;/RequireAll</b>&gt;</p>
+                    <p><b class="tag">&lt;/Directory</b>&gt;</p>
                 </pre>
             </div>
         </div>
